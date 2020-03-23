@@ -22,7 +22,7 @@ void printUsage(const std::string &programName)
     usageString += "Decoding a file:\n";
     usageString += programName + " -d path/to/input.sela path/to/output.wav\n\n";
     usageString += "Playing a file:\n";
-    usageString += programName + " -p path/to/input.sela\n";
+    usageString += programName + " -p path/to/input.sela";
     print(usageString);
 }
 
