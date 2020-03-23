@@ -12,12 +12,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 # Add support for threading library
 find_package(Threads REQUIRED)
-# Check if libao header is available or not
-CHECK_INCLUDE_FILES(ao/ao.h _HAVE_AO_H_)
-
-if(NOT _HAVE_AO_H_)
-    message(FATAL_ERROR "libao not found")
-endif()
+# Check if headers is available or not
+CHECK_INCLUDE_FILES(malloc.h HAVE_MALLOC_H)
+CHECK_INCLUDE_FILES(sys/audio.h HAVE_SYS_AUDIO_H)
 
 # Enable CTest
 include(CTest)
@@ -30,6 +27,36 @@ set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
 
 # Make sela executable -----------------
+
+set(
+    LIBAO_SOURCES
+    external/libao/src/ao_aixs.c
+    external/libao/src/ao_au.c
+    external/libao/src/ao_null.c
+    external/libao/src/ao_raw.c
+    external/libao/src/ao_wav.c
+    external/libao/src/audio_out.c
+    external/libao/src/config.c
+)
+
+if (WIN32)
+    list(APPEND LIBAO_SOURCES src/ao_wmm.c)
+endif ()
+
+add_library(libao ${LIBAO_SOURCES})
+target_include_directories(libao PUBLIC external/libao/include)
+target_include_directories(libao PRIVATE external/libao/include/ao)
+target_compile_definitions(libao PRIVATE AO_BUILDING_LIBAO)
+
+if (WIN32)
+    target_compile_definitions(libao PRIVATE HAVE_WMM)
+    target_link_libraries(libao PRIVATE Winmm.lib ksuser)
+endif ()
+
+if (HAVE_SYS_AUDIO_H)
+    target_compile_definitions(libao PRIVATE HAVE_SYS_AUDIO_H)
+endif ()
+
 set(SELA_INCLUDE_DIR src/include)
 set(SOURCES 
     src/main.cpp
@@ -49,7 +76,10 @@ set(SOURCES
 
 add_executable(sela ${SOURCES})
 target_include_directories(sela PUBLIC ${SELA_INCLUDE_DIR})
-target_link_libraries(sela Threads::Threads ao)
+target_include_directories(sela PRIVATE external/libao/include)
+target_link_libraries(sela Threads::Threads libao)
+
+add_subdirectory(external/libao/example)
 
 # Enable Warnings for MSVC/GCC/Clang on Debug Mode
 if(CMAKE_BUILD_TYPE MATCHES "Debug")
