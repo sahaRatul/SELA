@@ -134,7 +134,7 @@ static int ao_wav_device_init(ao_device *device)
 	memset(&(internal->wave), 0, sizeof(internal->wave));
 
 	device->internal = internal;
-        device->output_matrix = strdup("L,R,C,LFE,BL,BR,CL,CR,BC,SL,SR");
+        device->output_matrix = _strdup("L,R,C,LFE,BL,BR,CL,CR,BC,SL,SR");
         device->output_matrix_order = AO_OUTPUT_MATRIX_COLLAPSIBLE;
 
 	return 1; /* Memory alloc successful */
@@ -162,7 +162,7 @@ static int ao_wav_open(ao_device *device, ao_sample_format *format)
 	memset(buf, 0, WAV_HEADER_LEN);
 
 	/* Fill out our wav-header with some information. */
-	strncpy(internal->wave.riff.id, "RIFF",4);
+	strncpy_s(internal->wave.riff.id, 4, "RIFF",4);
 	internal->wave.riff.len = size - 8;
 	strncpy(internal->wave.riff.wave_id, "WAVE",4);
 

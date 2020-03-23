@@ -897,7 +897,7 @@ static char *_matrix_intersect(char *matrix,char *premap){
   }
 
   _free_map(map);
-  return strdup(buffer);
+  return _strdup(buffer);
 }
 
 static int ao_global_load_options(ao_option *options){
@@ -1048,7 +1048,7 @@ static ao_device* _open_device(int driver_id, ao_sample_format *format,
               }
               device->output_channels = max+1;
               device->output_mask = mask;
-              device->inter_matrix = strdup(device->output_matrix);
+              device->inter_matrix = _strdup(device->output_matrix);
             }
             break;
 
@@ -1124,7 +1124,7 @@ static ao_device* _open_device(int driver_id, ao_sample_format *format,
             awarn("Driver %s does not support automatic channel mapping;\n"
                  "\tRouting only L/R channels to output.\n\n",
                  info_table[device->driver_id]->short_name);
-            device->inter_matrix=strdup("L,R");
+            device->inter_matrix=_strdup("L,R");
           }
           {
 
@@ -1324,8 +1324,8 @@ int ao_append_option(ao_option **options, const char *key, const char *value)
 	op = calloc(1,sizeof(ao_option));
 	if (op == NULL) return 0;
 
-	op->key = strdup(key);
-	op->value = strdup(value?value:"");
+	op->key = _strdup(key);
+	op->value = _strdup(value?value:"");
 	op->next = NULL;
 
 	if ((list = *options) != NULL) {

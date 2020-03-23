@@ -12,10 +12,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 # Add support for threading library
 find_package(Threads REQUIRED)
-# Check if headers is available or not
-CHECK_INCLUDE_FILES(malloc.h HAVE_MALLOC_H)
-CHECK_INCLUDE_FILES(sys/audio.h HAVE_SYS_AUDIO_H)
+# Check if ao/ao.h is available or not
 CHECK_INCLUDE_FILES(ao/ao.h HAVE_AO_H)
+if(NOT HAVE_AO_H)
+    CHECK_INCLUDE_FILES(malloc.h HAVE_MALLOC_H)
+    CHECK_INCLUDE_FILES(sys/audio.h HAVE_SYS_AUDIO_H)
+endif()
 
 # Enable CTest
 include(CTest)
@@ -99,13 +101,13 @@ if(CMAKE_BUILD_TYPE MATCHES "Debug")
 endif()
 # --------------------------------------------
 
-#---------------------------------------------
-# Prepare "Catch" library for other executables
-set(CATCH_INCLUDE_DIR test/include)
-add_library(Catch INTERFACE)
-target_include_directories(Catch INTERFACE ${CATCH_INCLUDE_DIR})
 
-# Make test executable
+# Prepare "Catch" library for other executables
+set(CATCH_INCLUDE_DIR external/catch2/include)
+add_library(Catch INTERFACE)
+#--------------------------------------------
+
+# Make test executable------------------------
 set(TEST_SOURCES
     src/frame/frame_decoder.cpp
     src/frame/frame_encoder.cpp
@@ -120,6 +122,7 @@ set(TEST_SOURCES
     test/main.cpp
 )
 add_executable(selatests ${TEST_SOURCES})
+target_include_directories(selatests PRIVATE ${CATCH_INCLUDE_DIR})
 option(CODE_COVERAGE "Enable coverage reporting" OFF)
 if(CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     # Add required flags (GCC & LLVM/Clang)
