@@ -15,6 +15,7 @@ find_package(Threads REQUIRED)
 # Check if headers is available or not
 CHECK_INCLUDE_FILES(malloc.h HAVE_MALLOC_H)
 CHECK_INCLUDE_FILES(sys/audio.h HAVE_SYS_AUDIO_H)
+CHECK_INCLUDE_FILES(alsa/asoundlib.h HAVE_ALSA_ASOUNDLIB_H)
 
 # Enable CTest
 include(CTest)
@@ -40,8 +41,12 @@ set(
 )
 
 if (WIN32)
-    list(APPEND LIBAO_SOURCES src/ao_wmm.c)
+    list(APPEND LIBAO_SOURCES external/libao/src/ao_wmm.c)
 endif ()
+
+if(HAVE_ALSA_ASOUNDLIB_H)
+    list(APPEND LIBAO_SOURCES external/libao/src/plugins/ao_alsa.c)
+endif()
 
 add_library(libao ${LIBAO_SOURCES})
 target_include_directories(libao PUBLIC external/libao/include)
@@ -78,8 +83,6 @@ add_executable(sela ${SOURCES})
 target_include_directories(sela PUBLIC ${SELA_INCLUDE_DIR})
 target_include_directories(sela PRIVATE external/libao/include)
 target_link_libraries(sela Threads::Threads libao)
-
-add_subdirectory(external/libao/example)
 
 # Enable Warnings for MSVC/GCC/Clang on Debug Mode
 if(CMAKE_BUILD_TYPE MATCHES "Debug")
