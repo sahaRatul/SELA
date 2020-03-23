@@ -665,7 +665,6 @@ static char *_sanitize_matrix(int maxchannels, char *matrix, ao_device *device){
       if(!mnemonics[m]){
         /* unrecognized channel mnemonic */
         {
-          int i;
           aerror("Unrecognized channel name \"%.*s\" in channel matrix \"%s\"\n",
               t-p, p, matrix);
         }
@@ -839,7 +838,7 @@ static char *_channelmask_to_matrix(unsigned int mask, char *premap){
     m++;
   }
   _free_map(map);
-  return strdup(buffer);
+  return _strdup(buffer);
 }
 
 static int _channelmask_bits(unsigned int mask){
